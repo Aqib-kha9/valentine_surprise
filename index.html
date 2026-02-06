@@ -169,10 +169,12 @@
         /* LEVEL SCREENS */
         .level-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            padding: 20px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 80px 20px 40px; /* Top padding for header, bottom for scroll */
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
             transition: all 0.5s ease;
             opacity: 0; pointer-events: none; transform: scale(0.9);
+            overflow-y: auto; /* Enable Scroll */
+            -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
         }
         .level-screen.active {
             opacity: 1; pointer-events: all; transform: scale(1);
@@ -666,7 +668,7 @@
 
         function resetPrank() {
             stopAllFX(); // Stop crying
-            bgMusic.volume = 0.5;
+            bgMusic.volume = 0.2; // Softer for Propose Day
             bgMusic.play(); // Resume Romantic
             allowPrank();   // Skip to allow directly
         }
