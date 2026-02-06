@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valentine Adventure ❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
+    <style>
+        /* 
+           ========================================
+           💖 VALENTINE ADVENTURE STYLES 💖
+           ========================================
+        */
+        :root {
+            --primary: #ff4d6d;
+            --secondary: #ff8fa3;
+            --bg-dark: #1a0b12;
+            --glass: rgba(255, 255, 255, 0.9);
+            --shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #2b1019, #591c2b);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            color: #333;
+        }
+
+        /* Ambient Background */
+        .ambient-hearts {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0;
+        }
+        .float-heart {
+            position: absolute; bottom: -50px;
+            font-size: 24px; animation: floatUp 8s linear infinite;
+            opacity: 0.6;
+        }
+
+        /* NEXT LEVEL POLISH: Confetti */
+        .confetti {
+            position: fixed; width: 10px; height: 10px; background-color: #f00;
+            animation: confetti-fall 3s linear forwards; z-index: 200;
+        }
+        @keyframes confetti-fall {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* NAVIGATION CARD (Google Maps Style) */
+        .nav-card {
+            background: #fff;
+            border-radius: 20px;
+            width: 100%; max-width: 320px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            display: none; /* Toggled by JS */
+            flex-direction: column;
+            margin-top: 15px;
+            animation: slideUp 0.5s ease-out;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .map-view {
+            height: 180px;
+            background: #eef2f3;
+            position: relative;
+            overflow: hidden;
+            background-image: 
+                linear-gradient(rgba(200,200,200,0.3) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(200,200,200,0.3) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* SVG Car */
+        .nav-car-container {
+            position: absolute;
+            left: -40px; top: 50%;
+            transform: translateY(-50%);
+            animation: driveAcross 5s linear infinite;
+            z-index: 10;
+        }
+        
+        .nav-path {
+            position: absolute; top: 50%; left: 0; right: 0;
+            height: 6px; background: #ddd;
+            transform: translateY(-50%);
+        }
+        .nav-path-active {
+            position: absolute; top: 50%; left: 0; width: 0%;
+            height: 6px; background: #4285F4; /* Google Blue */
+            transform: translateY(-50%);
+            animation: pathFill 5s linear infinite;
+        }
+
+        /* Destination Heart Pin */
+        .nav-pin {
+            position: absolute; right: 40px; top: 50%;
+            transform: translateY(-50%);
+            font-size: 30px;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+            animation: pulse-pin 1s infinite alternate;
+            z-index: 5;
+        }
+
+        .nav-info {
+            padding: 15px 20px;
+            background: #fff;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        @keyframes driveAcross { 
+            0% { left: -40px; }
+            80% { left: calc(100% - 80px); } 
+            100% { left: calc(100% - 80px); } /* Stop at heart */
+        }
+        @keyframes pathFill {
+            0% { width: 0%; }
+            80% { width: calc(100% - 80px); }
+            100% { width: calc(100% - 80px); }
+        }
+        @keyframes pulse-pin { from { transform:translateY(-50%) scale(1); } to { transform:translateY(-50%) scale(1.2); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+               /* ... */
+
+
+        /* PHONE FRAME */
+        .device-frame {
+            width: 100%; max-width: 400px; height: 100vh; max-height: 850px;
+            background: linear-gradient(180deg, #fff5f7 0%, #ffe3e8 100%);
+            position: relative; z-index: 10;
+            display: flex; flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 0 60px rgba(255, 77, 109, 0.4);
+        }
+
+        @media (min-width: 450px) {
+            .device-frame {
+                border-radius: 40px; height: 90vh;
+                border: 12px solid #2d1b24;
+            }
+        }
+
+        /* HEADER */
+        .app-header {
+            padding: 20px; text-align: center;
+            background: rgba(255,255,255,0.8); backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.5);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .level-badge {
+            background: var(--primary); color: white;
+            padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+        }
+
+        /* CONTENT AREA */
+        .game-area {
+            flex: 1; padding: 20px; position: relative;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center;
+        }
+
+        /* LEVEL SCREENS */
+        .level-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            padding: 20px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: all 0.5s ease;
+            opacity: 0; pointer-events: none; transform: scale(0.9);
+        }
+        .level-screen.active {
+            opacity: 1; pointer-events: all; transform: scale(1);
+        }
+
+        h2 { font-family: 'Dancing Script', cursive; font-size: 2.5rem; color: var(--primary); margin-bottom: 10px; }
+        p { font-size: 14px; color: #555; margin-bottom: 20px; }
+
+        /* INTERACTIVE ELEMENTS */
+        .big-emoji { 
+            font-size: 80px; margin: 20px; cursor: pointer; 
+            transition: transform 0.3s; 
+            animation: pulse-emoji 2s infinite; 
+        }
+        .big-emoji:hover { transform: scale(1.1); }
+        .big-emoji:active { transform: scale(0.9); }
+
+        @keyframes pulse-emoji {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .btn {
+            background: var(--primary); color: white;
+            padding: 12px 30px; border-radius: 50px; border: none;
+            font-size: 16px; font-weight: 600; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 77, 109, 0.4);
+            transition: 0.2s; margin-top: 15px;
+        }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(255, 77, 109, 0.6); }
+        .btn.hidden { display: none; }
+
+        /* PRANK POPUP (FAKE IPHONE DIALOG) */
+        .fake-popup-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            display: none; justify-content: center; align-items: center; z-index: 100;
+        }
+        .fake-popup {
+            background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
+            width: 280px; border-radius: 14px; text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            animation: popupBounce 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .popup-title { padding: 15px; font-weight: 600; border-bottom: 1px solid #ddd; }
+        .popup-msg { padding: 15px; font-size: 13px; color: #333; }
+        .popup-btns { display: flex; border-top: 1px solid #ddd; }
+        .popup-btn {
+            flex: 1; padding: 12px; color: #007aff; cursor: pointer; font-size: 16px;
+            border: none; background: transparent;
+        }
+        .popup-btn:first-child { border-right: 1px solid #ddd; font-weight: 400; }
+        .popup-btn:last-child { font-weight: 600; }
+
+        /* CONTRACT (Promise Day) */
+        .contract-card {
+            background: #fff; padding: 20px; border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 100%;
+            text-align: left; font-size: 12px;
+        }
+        .checkbox-item { margin: 10px 0; display: flex; align-items: center; gap: 10px; }
+
+        /* MEMORY CARD */
+        .memory-display { width: 100%; height: 250px; background: #000; border-radius: 15px; overflow: hidden; margin-bottom: 10px; }
+        .memory-display img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* ANIMATIONS */
+        @keyframes floatUp { 0% { transform: translateY(0) rotate(0deg); opacity: 0; } 10% { opacity: 0.6; } 100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; } }
+        @keyframes popupBounce { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+
+        /* START OVERLAY (To force interaction) */
+        .start-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 999;
+            display: flex; justify-content: center; align-items: center; flex-direction: column;
+            color: white; cursor: pointer; backdrop-filter: blur(5px);
+        }
+        .tap-icon { font-size: 40px; animation: pulse-emoji 1.5s infinite; margin-bottom: 20px; }
+        
+        .hidden { display: none !important; }
+
+    </style>
+</head>
+<body>
+
+    <!-- CLICK TO START OVERLAY -->
+    <div class="start-overlay" id="startOverlay" onclick="startExperience()">
+        <div class="tap-icon">👆</div>
+        <p>Tap anywhere to start</p>
+    </div>
+
+    <div class="ambient-hearts" id="ambientHearts"></div>
+
+    <div class="device-frame">
+        <header class="app-header">
+            <span>❤️ Adventures</span>
+            <span class="level-badge" id="levelIndicator">Day 1/7</span>
+        </header>
+
+        <div class="game-area">
+            
+        
+            <!-- LEVEL 0: INTRO -->
+            <div class="level-screen active" id="level0">
+                <div class="typewriter">
+                    <h1 style="font-family:'Poppins', sans-serif; font-size:2rem; color:#ff4d6d;"> Hey this is for you ❤️❤️</h1>
+                </div>
+                <p style="font-size:16px; margin-top:20px; color:#555; opacity:0; animation:fadeIn 2s 3s forwards;">I made something for you.</p>
+                <div style="font-size:60px; margin:30px 0; cursor:pointer; animation:pulse-emoji 2s infinite;" onclick="nextLevel(1)">🎁</div>
+                <p style="font-size:12px; color:#888;">(Tap the gift)</p>
+            </div>
+
+            <!-- LEVEL 1: ROSE DAY -->
+            <div class="level-screen" id="level1">
+                <h2>Rose Day 🌹</h2>
+                <div class="big-emoji" id="rose" onclick="bloomRose()">🥀</div>
+                <p id="roseText" style="font-size: 16px; font-weight: 500;">
+                    For the most beautiful Soul! ❤️<br>
+                    <span style="font-size: 12px; color: #777;">(Tap to make it bloom)</span>
+                </p>
+                <button class="btn hidden" id="btn1" onclick="nextLevel(2)">Next Day ➡️</button>
+            </div>
+            
+
+
+            <!-- LEVEL 2: PROPOSE DAY (PRANK) -->
+            <div class="level-screen" id="level2">
+                <h2>Propose Day 💍</h2>
+                <div class="big-emoji">📍</div>
+                <p>I found the perfect spot for us...</p>
+                <button class="btn" id="locBtn" onclick="triggerPrank()">Check Location 🗺️</button>
+                
+                <!-- Navigation Map Result (Clean) -->
+                <div class="nav-card" id="mapResult">
+                    <div class="map-view">
+                        <div class="nav-path"></div>
+                        <div class="nav-path-active"></div>
+                        
+                        <!-- SVG Car -->
+                        <div class="nav-car-container">
+                             <svg width="50" height="30" viewBox="0 0 100 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="10" y="20" width="80" height="30" rx="10" fill="#ff4d6d"/>
+                                <rect x="20" y="5" width="60" height="25" rx="5" fill="#333"/>
+                                <circle cx="25" cy="50" r="8" fill="black"/>
+                                <circle cx="75" cy="50" r="8" fill="black"/>
+                                <rect x="80" y="25" width="5" height="10" fill="#ffeb3b"/> <!-- Headlight -->
+                            </svg>
+                        </div>
+
+                        <!-- Heart Pin -->
+                        <div class="nav-pin">❤️</div>
+                    </div>
+                    <div class="nav-info">
+                        <div>
+                            <div style="font-size:16px; font-weight:bold; color:#333;">Forever Together 💍</div>
+                            <div style="font-size:12px; color:#888;">Fastest Route • <span style="color:#28a745;">No Traffic</span></div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:18px; font-weight:bold; color:#ff4d6d;">Now</div>
+                            <div style="font-size:9px; color:#aaa;">Arrival</div>
+                        </div>
+                    </div>
+                </div>
+
+                <p id="secretMsg" class="hidden" style="font-size:12px; color:#666; margin-top:10px;">(Entering your heart... Do not disturb) 🤫</p>
+                <p id="prankResult" class="hidden" style="color:red; font-weight:bold; margin-top:10px;"></p>
+                <button class="btn hidden" id="btn2" onclick="nextLevel(3)">Awww! Proceed 🚀</button>
+            </div>
+
+            <!-- LEVEL 3: CHOCOLATE DAY -->
+            <div class="level-screen" id="level3">
+                <h2>Chocolate Day 🍫</h2>
+                <div style="display:flex; gap:20px;">
+                    <div class="big-emoji" onclick="pickChoco(this)">🍫</div>
+                    <div class="big-emoji" onclick="pickChoco(this)">🍬</div>
+                    <div class="big-emoji" onclick="pickChoco(this)">🍩</div>
+                </div>
+                <p id="chocoText">Kuch meetha ho jaye? 🍬</p>
+                <button class="btn hidden" id="btn3" onclick="nextLevel(4)">Yum! Next ➡️</button>
+            </div>
+
+            <!-- LEVEL 4: TEDDY DAY -->
+            <div class="level-screen" id="level4">
+                <h2>Teddy Day 🧸</h2>
+                <div class="big-emoji" id="teddy" onclick="hugTeddy()">🧸</div>
+                <p id="teddyText">He needs a hug! Tap him!</p>
+                <button class="btn hidden" id="btn4" onclick="nextLevel(5)">Aww! Next ➡️</button>
+            </div>
+
+            <!-- LEVEL 5: PROMISE DAY -->
+            <div class="level-screen" id="level5">
+                <h2>Promise Day 🤞</h2>
+                <div class="contract-card" style="background:#fff9fa; border:2px dashed #ff4d6d; max-height: 480px; overflow-y: auto;">
+                    <h3 style="color:#d6336c; margin-bottom:15px; border-bottom:1px solid #ffccd5; padding-bottom:10px;">📜 Official Love Agreement</h3>
+                    
+                    <div style="text-align:left; margin-bottom:15px;">
+                        <p style="font-size:12px; margin-bottom:10px; color:#666;">I, the undersigned, hereby promise to:</p>
+                        
+                        <div class="checkbox-item"><input type="checkbox" id="c1"> <label>Gussa ho jaogi, par block nahi karogi 😌</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="c2"> <label>Bhookh lagne pe mujhpe gussa nahi nikalogi 🍔</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="c3"> <label>Meri bakwaas ko bhi cute samjhogi 🤪</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="c4"> <label>Meri stupid photos delete nahi karogi 📸</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="c5"> <label>Har situation me meri Team me rahogi ❤️</label></div>
+                    </div>
+
+                    <div style="margin-top:15px; border-top:1px solid #ffccd5; padding-top:10px; display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:10px; color:#aaa;">X _________________</span>
+                        <div id="userSignature" style="font-family:'Dancing Script'; font-size:24px; color:#ff4d6d; opacity:0; transform:scale(0.5); transition:all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);">Yours Forever ❤️</div>
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="signContract()">I Promise ✍️</button>
+                <button class="btn hidden" id="btn5" onclick="nextLevel(6)">Sealed! Next ➡️</button>
+            </div>
+
+            <!-- LEVEL 6: EMOTIONAL QUOTES (Was Memories) -->
+            <div class="level-screen" id="level6">
+                <h2>Dil Ki Baat... ❤️</h2>
+                <div id="quoteDisplay" style="font-size: 20px; color: #333; height: 150px; display: flex; align-items: center; justify-content: center; padding: 20px; font-family: 'Dancing Script', cursive; text-align: center;">
+                    <!-- Text injected by JS -->
+                </div>
+                <button class="btn" onclick="nextQuote()">Promise Me? 🥺</button>
+            </div>
+
+            <!-- LEVEL 7: VALENTINE (FINALE) -->
+            <div class="level-screen" id="level7">
+                <h2>Be Mine? ❤️</h2>
+                <p style="font-size:16px;">Will you be my Valentine forever?</p>
+                <div style="margin-top:30px;">
+                    <button class="btn" id="yesBtn">YES! 😍</button>
+                    <!-- Dodging Button -->
+                    <button class="btn" id="noBtn" style="background:#444; position:absolute;">No 😒</button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- FAKE SYSTEM POPUP -->
+        <div class="fake-popup-overlay" id="fakePopup">
+            <div class="fake-popup">
+                <div class="popup-title">System Permission</div>
+                <div class="popup-msg">"AdmirerApp" wants to access your current location to find a way to your heart.</div>
+                <div class="popup-btns">
+                    <button class="popup-btn" onclick="denyPrank()">Don't Allow</button>
+                    <button class="popup-btn" onclick="allowPrank()">Allow</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MEME/SUCCESS OVERLAY -->
+        <div class="fake-popup-overlay" id="finalOverlay" style="background:white; z-index:200;">
+            <div style="text-align:center;">
+                <img src="https://media.giphy.com/media/26uf7yJapo82e48yA/giphy.gif" style="width:100%; max-width:300px; border-radius:10px;">
+                <h1>YAYYYYY! ❤️</h1>
+                <p>I knew it!</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- AUDIO SOURCES -->
+    <!-- 1. Intro Voice -->
+    <audio id="introAudio" src="hey%20sonia.mp4"></audio>
+    
+    <!-- 2. Romantic BG Music -->
+    <audio id="bgMusic" src="Heer_Ranjha_Status_Heer_Ranjha_WhatsApp_Status_Rito_Riba_New_Love_Status_RK_Creation2.1_256kbps.webm" loop></audio>
+    
+    <!-- 3. Success / Generic Level Up -->
+    <audio id="successAudio" src="babu.mp3"></audio>
+
+    <!-- 3b. Jonny Lever / "Abhi Maza Aayega Na Bhidu" -->
+    <audio id="jonnyAudio" src="Jonny_Lever_meme_STAR_MEMER_256kbps.webm"></audio>
+    
+    <!-- 4. Chase Logic / "Pakad Le" (CID) -->
+    <audio id="chaseAudio" src="Pakad_MC_Meme_Template_Pakad_Le_BKL_Ke_Meme_Chodu_CID_Meme_128kbps.mp4"></audio>
+    
+    <!-- 5. Sad / Rajpal Yadav Cry -->
+    <audio id="sadAudio" src="Neta_Crying_Meme_Template...._Ab_Mera_Dil_nai_karta...._Mera_Dil_Nai_Karta_Politician_Overacting_256kbps.webm"></audio>
+    
+    <!-- 6. Scolding / "Hosh Mein Aao" (Abhijeet) -->
+    <audio id="scoldAudio" src="hosh_me_aao_abhijeet_comedy_funny_viral_256KBPS.webm"></audio>
+    
+    <!-- 7. Final Yes / "Thanks Love You" (Akshay Kumar) -->
+    <audio id="thanksAudio" src="Thanks_love_you_forever_meme_template_Akshey_kumar_256kbps.webm"></audio>
+    
+    <!-- 8. Start Journey / "Ae Gaadi Start Kar" (Gangs of Wasseypur) -->
+    <audio id="driveAudio" src="Ae_Gaadi_Start_Kar_-_Gangs_of_Wasseypur_Meme_Template_With_Download_256KBPS.webm"></audio>
+    
+    <!-- 9. Chocolate Day / "Oh My God Wow" -->
+    <audio id="wowAudio" src="Memes_funny_video_No_copyright_256KBPS.webm"></audio>
+    
+    <!-- 10. Teddy Day / Shock & Amazed -->
+    <audio id="shockAudio" src="The_Best_Funny_Video_Cut_for_YouTube._SHOCKPLUS_AMAZED_funny_Meme_Clip_for_VideoEditing_NO_COPYRIGHT_720P.mp4"></audio>
+
+    <!-- 11. Dil Ki Baat / Kasam Ki Kasam -->
+    <audio id="kasamAudio" src="Kasam_Ki_Kasam_-_Rahul_Jain_Unplugged_Cover_Piano_Version_Rahul_Jain_Unplugged_Songs_256KBPS.webm"></audio>
+
+
+    <script>
+        // --- DATA & CONFIG ---
+        const QUOTES = [
+            "Promise karo tough time me mera haath nahi chhodogi 🤍",
+            "Promise karo misunderstanding aaye to baat karke solve karogi 🤝",
+            "Promise karo mujhe main jaisa hoon waise hi accept karogi 🌻",
+            "Promise karo meri khushi ko important samjhogi 💫",
+            "Promise karo aaj se nahi… hamesha mere saath rahogi ❤️" // Killer Line
+        ];
+
+        let currentDay = 0;
+        let quoteIndex = 0;
+
+        // --- AUDIO REFS ---
+        const introAudio = document.getElementById('introAudio');
+        const bgMusic = document.getElementById('bgMusic'); 
+        const successAudio = document.getElementById('successAudio'); 
+        const jonnyAudio = document.getElementById('jonnyAudio');     
+        const chaseAudio = document.getElementById('chaseAudio');
+        const sadAudio = document.getElementById('sadAudio');
+        const scoldAudio = document.getElementById('scoldAudio');
+        const thanksAudio = document.getElementById('thanksAudio');
+        const driveAudio = document.getElementById('driveAudio');
+        const wowAudio = document.getElementById('wowAudio');
+        const shockAudio = document.getElementById('shockAudio');
+        const kasamAudio = document.getElementById('kasamAudio');
+
+        const ALL_FX = [introAudio, successAudio, jonnyAudio, chaseAudio, sadAudio, scoldAudio, thanksAudio, driveAudio, wowAudio, shockAudio, kasamAudio];
+
+        // --- AUDIO MANAGER ---
+        function stopAllFX() {
+            ALL_FX.forEach(audio => {
+                audio.pause();
+                audio.currentTime = 0;
+            });
+        }
+
+        function playClip(audioEl) {
+            stopAllFX(); 
+            bgMusic.volume = 0.2;
+            if(audioEl.readyState >= 1) {
+                audioEl.currentTime = 0;
+                audioEl.play().catch(e=>console.log("Audio clip error", e));
+                audioEl.onended = () => { bgMusic.volume = 0.5; };
+            }
+        }
+
+        // --- START FLOW ---
+        function startExperience() {
+            const overlay = document.getElementById('startOverlay');
+            overlay.style.opacity = '0';
+            setTimeout(() => overlay.remove(), 500);
+            playClip(introAudio);
+        }
+
+        // --- FX ---
+        function triggerConfetti() {
+            const colors = ['#ff4d6d', '#ff8fa3', '#fff', '#ffd700'];
+            for(let i=0; i<50; i++) {
+                const c = document.createElement('div');
+                c.className = 'confetti';
+                c.style.left = Math.random() * 100 + 'vw';
+                c.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+                c.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                document.body.appendChild(c);
+                setTimeout(() => c.remove(), 4000);
+            }
+        }
+
+        // --- NAVIGATION ---
+        function nextLevel(day) {
+            triggerConfetti();
+
+            if (day === 1) {
+                stopAllFX(); 
+                bgMusic.volume = 0.5; 
+                bgMusic.play().catch(()=>{});
+            } else if (day === 6) {
+                // Dil Ki Baat Special Audio
+                stopAllFX();
+                bgMusic.pause(); // Stop main romantic loop
+                kasamAudio.currentTime = 7; // Skip first 7 seconds
+                kasamAudio.volume = 0.4; // 40% volume for BG feel
+                kasamAudio.play().catch(e=>console.log("Kasam audio error", e));
+            } else {
+                if(day < 7 && day > 1) {
+                    playClip(successAudio); 
+                }
+            }
+
+            document.querySelectorAll('.level-screen').forEach(el => {
+                el.classList.remove('active');
+                el.style.opacity = '0';
+            });
+
+            setTimeout(() => {
+                const next = document.getElementById('level' + day);
+                next.classList.add('active');
+                next.style.opacity = '1';
+                
+                 const badge = document.getElementById('levelIndicator');
+                if(day === 0) badge.innerText = "Welcome ❤️";
+                else badge.innerText = `Day ${day}/7`;
+                
+                currentDay = day;
+                if(day === 6) loadQuote(0);
+            }, 500);
+        }
+        function signContract() {
+            // Updated IDs: c1 to c5 (Top 5 Best)
+            const checkIds = ['c1','c2','c3','c4','c5'];
+            const allChecked = checkIds.every(id => document.getElementById(id).checked);
+            
+            if(!allChecked) {
+                playClip(scoldAudio); // "Hosh mein aao!"
+                alert("Sare promises select karo! 😤 (Padh ke karna)");
+                return;
+            }
+            
+            // Animate Signature
+            const sig = document.getElementById('userSignature');
+            sig.style.opacity = '1';
+            sig.style.transform = 'scale(1) rotate(-5deg)';
+            
+            document.getElementById('btn5').classList.remove('hidden');
+            playClip(successAudio);
+        }
+
+        // Level 6: Deep Quotes (Replacing Memories)
+        function loadQuote(idx) {
+            if(idx >= QUOTES.length) { nextLevel(7); return; }
+            
+            const disp = document.getElementById('quoteDisplay');
+            disp.style.opacity = 0;
+            disp.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                disp.innerText = `"${QUOTES[idx]}"`;
+                disp.style.opacity = 1;
+                disp.style.transform = 'translateY(0)';
+                disp.style.transition = 'all 0.5s ease';
+            }, 300);
+        }
+        
+        function nextQuote() { 
+            quoteIndex++; 
+            loadQuote(quoteIndex); 
+        }
+
+
+
+        // Level 1: Rose
+        function bloomRose() {
+            const r = document.getElementById('rose');
+            r.innerText = "🌹"; r.style.transform = "scale(1.5)";
+            document.getElementById('roseText').innerText = "For the most beautiful Soul! ❤️";
+            document.getElementById('btn1').classList.remove('hidden');
+            playClip(successAudio); // Generic Success
+        }
+
+        // Level 2: Location Prank
+        function triggerPrank() {
+            document.getElementById('fakePopup').style.display = 'flex';
+            playClip(jonnyAudio); // "Abhi Maza Aayega Na Bhidu"
+        }
+        
+        function denyPrank() {
+            // STOP BG, Play Rajpal Yadav Crying
+            bgMusic.pause(); // Pause romantic song for sad vibes
+            playClip(sadAudio); // Sad Cry
+
+            // Show UI
+            const popup = document.querySelector('.fake-popup');
+            popup.innerHTML = `
+                <div style="padding:15px;">
+                    <!-- Replaced GIF with Video -->
+                    <video src="The_Best_Funny_Video_Cut_for_YouTube._SHOCKPLUS_AMAZED_funny_Meme_Clip_for_VideoEditing_NO_COPYRIGHT_720P.mp4" 
+                           autoplay loop muted playsinline 
+                           style="width:100%; max-width:200px; border-radius:10px; margin-bottom:10px;">
+                    </video>
+                    <h3 style="margin:10px 0 5px; color:#333;">Ye kya kiya? 🥺</h3>
+                    <p style="font-size:12px; color:#555;">Dil ke armaan aansuon mein beh gaye... 💔😭<br>(Maan jao na please!)</p>
+                </div>
+                <div class="popup-btns">
+                    <button class="popup-btn" style="font-weight:600; color:#ff4d6d;" onclick="resetPrank()">Sorry Babu! Allow 🥺</button>
+                </div>
+            `;
+            popup.style.animation = 'shake 0.5s';
+            setTimeout(() => popup.style.animation = '', 500);
+        }
+
+        function resetPrank() {
+            stopAllFX(); // Stop crying
+            bgMusic.volume = 0.5;
+            bgMusic.play(); // Resume Romantic
+            allowPrank();   // Skip to allow directly
+        }
+
+        function allowPrank() {
+            document.getElementById('fakePopup').style.display = 'none';
+            document.getElementById('locBtn').classList.add('hidden');
+            
+            // Show GPS and Secret Msg (Previously hidden)
+            document.getElementById('mapResult').style.display = 'flex';
+            document.getElementById('secretMsg').classList.remove('hidden');
+            document.getElementById('btn2').classList.remove('hidden');
+            
+            playClip(driveAudio); // "Ae Gaadi Start Kar"
+        }
+
+        // Level 3: Chocolate
+        function pickChoco(el) {
+            el.style.transform = "scale(1.3) rotate(10deg)";
+            document.getElementById('chocoText').innerText = "Sweet choice! 🍫";
+            document.getElementById('btn3').classList.remove('hidden');
+            playClip(wowAudio); // "Oh My God Wow"
+        }
+
+        // Level 4: Teddy
+        function hugTeddy() {
+            document.getElementById('teddy').innerText = "🥰";
+            document.getElementById('teddyText').innerText = "Warm hugs for you! 🤗";
+            document.getElementById('btn4').classList.remove('hidden');
+            playClip(shockAudio); // "Shock/Amazed"
+        }
+
+        // Level 5: Promise
+        function signContract() {
+            const checkIds = ['c1','c2','c3','c4'];
+            const allChecked = checkIds.every(id => document.getElementById(id).checked);
+            
+            if(!allChecked) {
+                playClip(scoldAudio); // "Hosh mein aao!"
+                alert("Sare promises select karo! 😤 (Padh ke karna)");
+                return;
+            }
+            
+            // Animate Signature
+            const sig = document.getElementById('userSignature');
+            sig.style.opacity = '1';
+            sig.style.transform = 'scale(1) rotate(-5deg)';
+            
+            document.getElementById('btn5').classList.remove('hidden');
+            playClip(successAudio);
+        }
+
+        // Level 6: Memories
+        let memIndex = 0;
+        function loadMemory(idx) {
+            if(idx >= MEMORIES.length) { nextLevel(7); return; }
+            const m = MEMORIES[idx];
+            const disp = document.getElementById('memDisplay');
+            disp.style.opacity = 0;
+            setTimeout(() => {
+                disp.innerHTML = `<img src="${m.img}">`;
+                document.getElementById('memCaption').innerText = m.caption;
+                disp.style.opacity = 1;
+                disp.style.transform = `rotate(${Math.random()*6 - 3}deg)`;
+            }, 300);
+        }
+        function nextMemory() { memIndex++; loadMemory(memIndex); }
+
+        // Level 7: Finale
+        const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+
+        // CHASE LOGIC
+        noBtn.addEventListener('mouseover', dodge);
+        noBtn.addEventListener('click', () => {
+             if(scoldAudio.paused) {
+                 playClip(scoldAudio); // "Hosh mein aao Abhijeet!"
+             }
+             dodge();
+        });
+
+        function dodge() {
+            // Check if chase audio is already playing to avoid stutter
+            // Also ensure we don't interrupt the Scold Audio if it's playing
+            if(chaseAudio.paused && scoldAudio.paused) {
+                playClip(chaseAudio);
+            }
+            
+            const x = Math.random() * (window.innerWidth - 100);
+            const y = Math.random() * (window.innerHeight - 100);
+            noBtn.style.position = 'fixed';
+            noBtn.style.left = x + 'px';
+            noBtn.style.top = y + 'px';
+        }
+
+        yesBtn.addEventListener('click', () => {
+            // FINAL MOMENT
+            bgMusic.pause();
+            stopAllFX();
+            
+            // Akshay Kumar Thanks (Skip 1s)
+            thanksAudio.currentTime = 1;
+            thanksAudio.volume = 1.0;
+            thanksAudio.play().catch(e=>console.log("Thanks audio error", e));
+
+            document.getElementById('finalOverlay').style.display = 'flex';
+            triggerConfetti();
+        });
+
+        // Ambient Hearts
+        setInterval(() => {
+            const h = document.createElement('div');
+            h.innerText = Math.random()>0.5 ? '❤️' : '💖';
+            h.className = 'float-heart';
+            h.style.left = Math.random() * 100 + '%';
+            h.style.animationDuration = (Math.random()*5 + 5) + 's';
+            document.getElementById('ambientHearts').appendChild(h);
+            setTimeout(()=>h.remove(), 8000);
+        }, 800);
+
+    </script>
+</body>
+</html>
